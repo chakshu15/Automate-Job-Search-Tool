@@ -362,6 +362,13 @@ export default function JobPilotDashboard() {
   const [statuses, setStatuses] = useState({});
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
+  const [profile, setProfile] = useState({
+    name: "Your Name",
+    initials: "NM",
+    role: "Your Role",
+    location: "Your Location",
+    skills: ["Skill 1", "Skill 2", "Skill 3", "Skill 4", "Skill 5", "Skill 6", "Skill 7"],
+  });
   const [error, setError] = useState("");
   const [fetched, setFetched] = useState(false);
   const [filter, setFilter] = useState("all");
@@ -422,8 +429,12 @@ export default function JobPilotDashboard() {
             "Failed to fetch jobs. Is the server running?",
         );
       }
-      if (summaryRes.status === "fulfilled")
+      if (summaryRes.status === "fulfilled") {
         setSummary(summaryRes.value.summary);
+        if (summaryRes.value.profile) {
+          setProfile(summaryRes.value.profile);
+        }
+      }
     } catch (e) {
       setError(
         "Cannot reach backend. Make sure server is running on port 3001.",
@@ -631,7 +642,7 @@ export default function JobPilotDashboard() {
                   fontFamily: "'Space Mono', monospace",
                 }}
               >
-                CS
+                {profile.initials}
               </div>
               <div>
                 <div
@@ -642,10 +653,11 @@ export default function JobPilotDashboard() {
                     fontFamily: "'Outfit', sans-serif",
                   }}
                 >
-                  Chakshu Sharma
+                  {profile.name}
                 </div>
                 <div style={{ color: "#7070a0", fontSize: 12, marginTop: 2 }}>
-                  Full-Stack Software Engineer · Firozpur, Punjab
+                  {profile.role}
+                  {profile.location ? ` · ${profile.location}` : ""}
                 </div>
                 <div
                   style={{
@@ -655,15 +667,7 @@ export default function JobPilotDashboard() {
                     marginTop: 8,
                   }}
                 >
-                  {[
-                    "Java",
-                    "Spring Boot",
-                    "React",
-                    "PostgreSQL",
-                    "AWS",
-                    "Kafka",
-                    "Docker",
-                  ].map((s) => (
+                  {profile.skills.map((s) => (
                     <span
                       key={s}
                       style={{

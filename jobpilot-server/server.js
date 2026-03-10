@@ -55,8 +55,7 @@ const INDIA_CITIES = [
 
 const skills = ["Java", "Spring Boot", "React", "Microservices", "REST API"];
 
-
-  const ROLE_QUERIES = [
+const ROLE_QUERIES = [
   // Generic Entry Level
   "Software Engineer",
   "Associate Software Engineer",
@@ -98,7 +97,7 @@ const skills = ["Java", "Spring Boot", "React", "Microservices", "REST API"];
   `Software Engineer ${skills[0]} ${skills[4]}`,
   `Software Engineer`,
   `Java Developer`,
-  'Associated Software Engineer',
+  "Associated Software Engineer",
 ];
 
 // Build targeted query list: each role × top 3 cities + remote
@@ -419,7 +418,42 @@ app.get("/api/profile-summary", async (req, res) => {
         },
       ],
     });
-    res.json({ summary: msg.content[0].text });
+
+    // Parse RESUME_SUMMARY for basic details
+    const resumeLines = RESUME_SUMMARY.split("\n");
+
+    const nameLine = resumeLines.find((l) => l.startsWith("Name:")) || "";
+    const name = nameLine.replace("Name:", "").trim() || "Unknown Developer";
+    const initials =
+      name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase() || "UD";
+
+    const roleLine = resumeLines.find((l) => l.startsWith("Role:")) || "";
+    const role = roleLine.replace("Role:", "").trim() || "Software Engineer";
+
+    const locationLine =
+      resumeLines.find((l) => l.startsWith("Location:")) || "";
+    const location =
+      locationLine.replace("Location:", "").split("-")[0].trim() || "Remote";
+
+    const skillsLine = resumeLines.find((l) => l.startsWith("Skills:")) || "";
+    const skillsStr = skillsLine.replace("Skills:", "").trim();
+    const skills = skillsStr
+      ? skillsStr
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 7)
+      : ["Java", "Spring Boot", "React", "Node.js"];
+
+    res.json({
+      summary: msg.content[0].text,
+      profile: { name, initials, role, location, skills },
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
